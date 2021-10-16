@@ -3,7 +3,9 @@
 ## 数据结构与算法
 
 数据结构是一种数据的表现形式，如链表、二叉树、栈、队列等都是内存中一段数据表现的形式。
-算法是一种通用的解决问题的模板或者思路，大部分数据结构都有一套通用的算法模板，所以掌握这些通用的算法模板即可解决各种算法问题。
+
+(套模板)
+算法是一种通用的解决问题的**模板**或者思路，大部分数据结构都有一套通用的算法模板，所以掌握这些通用的算法模板即可解决各种算法问题。
 
 后面会分专题讲解各种数据结构、基本的算法模板、和一些高级算法模板，每一个专题都有一些经典练习题，完成所有练习的题后，你对数据结构和算法会有新的收获和体会。
 
@@ -18,18 +20,16 @@
 ```Python
 class Solution:
     def strStr(self, haystack: str, needle: str) -> int:
-        L, n = len(needle), len(haystack)
-
-        for start in range(n - L + 1):
-            if haystack[start:start + L] == needle:
+        len_h, len_n = len(haystack), len(needle)
+        for start in range(len_h - len_n + 1):
+            if haystack[start : start + len_n] == needle:
                 return start
         return -1
 ```
 
-需要注意点
+needle为空，则两个空串比较，也返回正确的0。
 
-- 循环时，i 不需要到 len-1
-- 如果找到目标字符串，len(needle) == j
+更高级的叫**KMP算法**，从O(m x n)提升到O(m + n)。暂时跳过。
 
 ### [示例 2：subsets](https://leetcode-cn.com/problems/subsets/)
 
@@ -37,16 +37,17 @@ class Solution:
 
 - 思路：这是一个典型的应用回溯法的题目，简单来说就是穷尽所有可能性，算法模板如下
 
-```go
+```python
 result = []
-func backtrack(选择列表,路径):
+def backtrack(选择列表, 路径):
     if 满足结束条件:
-        result.add(路径)
+        result.append(路径)
         return
     for 选择 in 选择列表:
         做选择
-        backtrack(选择列表,路径)
+        backtrack(新选择列表, 新路径)
         撤销选择
+    return  # 部分循环中，循环结束依然无解
 ```
 
 - 通过不停的选择，撤销选择，来穷尽所有可能性，最后将满足条件的结果返回。答案代码：
@@ -54,25 +55,23 @@ func backtrack(选择列表,路径):
 ```Python
 class Solution:
     def subsets(self, nums: List[int]) -> List[List[int]]:
-        
-        n = len(nums)
         result = []
-        
-        def backtrack(start, k, route=[]):
+        n = len(nums)
+
+        def backtrack(start, route, k):
             if len(route) == k:
                 result.append(route.copy())
                 return
             
             for i in range(start, n):
                 route.append(nums[i])
-                backtrack(i + 1, k)
+                backtrack(i + 1, route, k)
                 route.pop()
-
             return
-        
+
         for k in range(n + 1):
-            backtrack(0, k)
-        
+            backtrack(0, [], k)
+
         return result
 ```
 

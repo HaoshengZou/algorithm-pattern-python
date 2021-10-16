@@ -17,7 +17,7 @@ Python语言有很多特性可以大大简化代码，下面列举几个常用�
 Array = [0] * N
 
 # 初始化一个形状为 MxN 的二维数组(矩阵)
-Matrix = [[0] * N for _ in range(M)] # 思考：可以写成 [[0] * N] * M 吗？
+Matrix = [[0] * N for _ in range(M)] # [[0] * N] * M的话，列上"牵一发而动全身"
 ```
 
 #### 交换元素值
@@ -60,9 +60,17 @@ Python 自带的 [bisect](https://docs.python.org/3/library/bisect.html) 库可�
 
 Python 中的栈使用自带的 list 类来实现，可参考[官方文档](https://docs.python.org/3/tutorial/datastructures.html#using-lists-as-stacks)。
 
+`s.append() s.pop()`足矣。
+
 #### 队列
 
 使用 collections 库中的 deque 类实现，可参考[官方文档](https://docs.python.org/3/library/collections.html#collections.deque)。
+
+```python
+q = deque(['a', 'b'])
+q.append('c')
+q.popleft()  # 注意纯pop()还是默认从尾部
+```
 
 #### 堆
 
@@ -75,6 +83,8 @@ Python 中没有真的 heap 类，实现堆是使用 list 类配合 heapq 库中
 ## collections 库
 
 Python 的 [collections 库](https://docs.python.org/3/library/collections.html)在刷题时会经常用到，它拓展了一些Python中基础的类，提供了更多功能，例如 defaultdict 可以预设字典中元素 value 的类型，自动提供初始化，Counter 可以直接统计元素出现个数等。
+
+Counter最基本的功能就是初始值为0的defaultdict。
 
 ## 总结
 
