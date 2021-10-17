@@ -82,9 +82,9 @@ Python 中没有真的 heap 类，实现堆是使用 list 类配合 heapq 库中
 
 ## collections 库
 
-Python 的 [collections 库](https://docs.python.org/3/library/collections.html)在刷题时会经常用到，它拓展了一些Python中基础的类，提供了更多功能，例如 defaultdict 可以预设字典中元素 value 的类型，自动提供初始化，Counter 可以直接统计元素出现个数等。
+Python 的 [collections 库](https://docs.python.org/3/library/collections.html)在刷题时会经常用到，它拓展了一些Python中基础的类，提供了更多功能，例如 defaultdict(不大写) 可以预设字典中元素 value 的类型，自动提供初始化，Counter(大写) 可以直接统计元素出现个数等。
 
-Counter最基本的功能就是初始值为0的defaultdict。
+Counter 最基本的功能就是初始值为0的defaultdict。
 
 ## 总结
 
