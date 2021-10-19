@@ -41,9 +41,9 @@ needle为空，则两个空串比较，也返回正确的0。
 result = []
 def backtrack(选择列表, 路径):
     if 满足结束条件:
-        result.append(路径)
+        result.append(路径.copy())  # 对象嵌套的话，还需深拷贝
         return
-    for 选择 in 选择列表:
+    for 选择 in 选择列表:  # 遍历选择，就不会重复了
         做选择
         backtrack(新选择列表, 新路径)
         撤销选择

@@ -2,10 +2,16 @@
 
 ## 知识点
 
+二叉树的递归定义是二叉树的重要定义方式之一（还可用图论术语定义）。
+既然定义都是递归的，那解法很自然很多都是递归的（注意，递归+分治，之前回溯法也是递归调用）。
+@211016：暂时先只掌握递归解法，和基本的非递归遍历，和层序遍历。
+
 ### 二叉树遍历
 
 **前序遍历**：**先访问根节点**，再前序遍历左子树，再前序遍历右子树
+
 **中序遍历**：先中序遍历左子树，**再访问根节点**，再中序遍历右子树
+
 **后序遍历**：先后序遍历左子树，再后序遍历右子树，**再访问根节点**
 
 注意点
@@ -43,49 +49,86 @@ def postorder_rec(root):
     return
 ```
 
+#### 非递归模板
+
+硬想、包括力扣官方题解，都没法用统一的方式记忆三种顺序的非递归遍历。
+
+"颜色标记法"，可以统一记忆，只需更改中间三行append的顺序（注意用stack左右总是反一下）：
+
+```python
+def postorderTraversal(self, root: TreeNode) -> List[int]:
+    WHITE, GRAY = 0, 1
+    result = []
+    stack = [(WHITE, root)]
+    while stack:
+        color, node = stack.pop()
+        if node is None: continue  # 保留这个写法，记忆signature
+        if color == WHITE:
+            stack.append((GRAY, node))  # 无论什么顺序，root总是子树入口，第二次总是压GRAY入栈
+            stack.append((WHITE, node.right))
+            stack.append((WHITE, node.left))
+        else:
+            result.append(node.val)
+    return result
+```
+
+
 #### [前序非递归](https://leetcode-cn.com/problems/binary-tree-preorder-traversal/)
 
-- 本质上是图的DFS的一个特例，因此可以用栈来实现
+- DFS的一个特例（但其他序不是），因此可以用栈来实现。记下自己想出来的版本。
+- 注意常见细节：用stack，左右反一下，最终可以先左。
 
 ```Python
 class Solution:
     def preorderTraversal(self, root: TreeNode) -> List[int]:
-        
-        preorder = []
-        if root is None:
-            return preorder
-        
+        result = []
         s = [root]
-        while len(s) > 0:
+
+        while s:
             node = s.pop()
-            preorder.append(node.val)
-            if node.right is not None:
-                s.append(node.right)
-            if node.left is not None:
+            if node is not None:
+                result.append(node.val)
+                s.append(node.right)  # 用stack，左右反一下，最终可以先左。
                 s.append(node.left)
         
-        return preorder
+        return result
 ```
 
 #### [中序非递归](https://leetcode-cn.com/problems/binary-tree-inorder-traversal/)
 
-```Python
+> 递归的时候隐式地维护了一个栈（函数调用栈），而我们在迭代的时候需要显式地将这个栈模拟出来
+
+官方题解的这句话并不能帮助写出代码……
+虽然不喜欢官方题解中while循环的双or终止条件，但自己想出的版本也只是歪打正着。
+while循环的双or终止条件还是可以作为三种顺序的统一终止条件的。
+
+```python
 class Solution:
     def inorderTraversal(self, root: TreeNode) -> List[int]:
-        s, inorder = [], []
-        node = root
-        while len(s) > 0 or node is not None:
-            if node is not None:
-                s.append(node)
-                node = node.left
-            else:
-                node = s.pop()
-                inorder.append(node.val)
-                node = node.right
-        return inorder
+        result = []
+        s = [root]
+        last_node = root
+
+        while s:
+            peek = s[-1]
+            if peek is not None:
+                if last_node is None:  # time to visit this one
+                    # 左孩子为None，或刚访问了左子树最后一个叶子的右孩子None
+                    # 【其实也不是很直观，有点歪打正着。也导致后序出错了！之后删掉这种做法！
+                    last_node = s.pop()
+                    result.append(last_node.val)
+                    s.append(last_node.right)
+                else:
+                    s.append(peek.left)  # left subtree first
+            else:  # peek is None
+                last_node = s.pop()
+        
+        return result
 ```
 
 #### [后序非递归](https://leetcode-cn.com/problems/binary-tree-postorder-traversal/)
+
+力扣有个评论，确实就后序最难硬想出来。
 
 ```Python
 class Solution:
@@ -110,11 +153,9 @@ class Solution:
         return postorder
 ```
 
-注意点
+[comment]: 注意点核心就是：根节点必须在右节点弹出之后，再弹出
 
-- 核心就是：根节点必须在右节点弹出之后，再弹出
-
-DFS 深度搜索-从下向上（分治法）
+#### DFS 深度搜索-从下向上（分治法）（仍为递归）
 
 ```Python
 class Solution:
@@ -131,37 +172,36 @@ class Solution:
 
 注意点：
 
-> DFS 深度搜索（从上到下） 和分治法区别：前者一般将最终结果通过指针参数传入，后者一般递归返回结果最后合并
+> 从上向下和从下向上（分治法/递归）区别：前者一般将最终结果通过指针参数传入，后者一般递归返回结果最后合并，比如此例。
 
-#### [BFS 层次遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+#### [层序遍历](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
+
+层序遍历是BFS的特例（前序遍历是DFS特例）
 
 ```Python
 class Solution:
     def levelOrder(self, root: TreeNode) -> List[List[int]]:
-        
-        levels = []
-        if root is None:
-            return levels
-        
-        bfs = collections.deque([root])
-        
-        while len(bfs) > 0:
-            levels.append([])
-            
+        if root is None: return []  # 实际做题单独处理dummy input靠谱
+        result = []
+        bfs = collections.deque([root])  # 这样bfs中保证从来没有None节点
+
+        while bfs:
+            level = []
             level_size = len(bfs)
             for _ in range(level_size):
                 node = bfs.popleft()
-                levels[-1].append(node.val)
-                
+                level.append(node.val)
                 if node.left is not None:
                     bfs.append(node.left)
                 if node.right is not None:
                     bfs.append(node.right)
-        
-        return levels
+
+            result.append(level)
+
+        return result
 ```
 
-### 分治法应用
+## 分治法应用（注意二叉树也经常用到分治法思想的！）
 
 先分别处理局部，再合并结果
 
@@ -183,32 +223,42 @@ class Solution:
 
 > 给定一个二叉树，找出其最大深度。
 
-- 思路 1：分治法
+- 思路 1：递归模板
 
 ```Python
 class Solution:
-    def maxDepth(self, root: TreeNode) -> int:
-        
+    def maxDepth(self, root: TreeNode) -> int:        
         if root is None:
             return 0
         
         return 1 + max(self.maxDepth(root.left), self.maxDepth(root.right))
+        # 可以递归内部函数，也可以递归自己 
+```
+
+或者反过来计算深度：
+```python
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        def depth(node, d):
+            if node is None:
+                return d
+            return max(depth(node.left, d + 1), depth(node.right, d + 1))
+        return depth(root, 0)
 ```
 
 - 思路 2：层序遍历
 
 ```Python
 class Solution:
-    def maxDepth(self, root: TreeNode) -> List[List[int]]:
-        
+    def maxDepth(self, root: TreeNode) -> List[List[int]]:        
         depth = 0
         if root is None:
             return depth
         
         bfs = collections.deque([root])
         
-        while len(bfs) > 0:
-            depth += 1
+        while bfs:
+            depth += 1  # 模板此处是返回遍历结果，这里只需记录深度
             level_size = len(bfs)
             for _ in range(level_size):
                 node = bfs.popleft()
@@ -224,20 +274,17 @@ class Solution:
 
 > 给定一个二叉树，判断它是否是高度平衡的二叉树。
 
-- 思路 1：分治法，左边平衡 && 右边平衡 && 左右两边高度 <= 1，
+- 思路 1：递归，左边平衡 && 右边平衡 && 左右两边高度 <= 1（平衡的定义）。O(n)
 
 ```Python
 class Solution:
-    def isBalanced(self, root: TreeNode) -> bool:
- 
+    def isBalanced(self, root: TreeNode) -> bool: 
         def depth(root):
-            
             if root is None:
-                return 0, True
+                return 0, True  # depth, is_balanced
             
             dl, bl = depth(root.left)
             dr, br = depth(root.right)
-            
             return max(dl, dr) + 1, bl and br and abs(dl - dr) < 2
         
         _, out = depth(root)
@@ -282,13 +329,14 @@ class Solution:
 
 > 给定一个**非空**二叉树，返回其最大路径和。
 
-- 思路：分治法。最大路径的可能情况：左子树的最大路径，右子树的最大路径，或通过根结点的最大路径。其中通过根结点的最大路径值等于以左子树根结点为端点的最大路径值加以右子树根结点为端点的最大路径值再加上根结点值，这里还要考虑有负值的情况即负值路径需要丢弃不取。
+- 思路：分治法。合并左右子树的结果，分类讨论。
+
+- 最大路径的可能情况：左子树的最大路径，右子树的最大路径，或通过根结点的最大路径。其中通过根结点的最大路径值等于以左子树根结点为端点的最大路径值加以右子树根结点为端点的最大路径值再加上根结点值，这里还要考虑有负值的情况即负值路径需要丢弃不取。
 
 ```Python
 class Solution:
     def maxPathSum(self, root: TreeNode) -> int:
-        
-        self.maxPath = float('-inf')
+        self.maxPath = float('-inf')  # 对象直接通过引用在递归调用中共享，primitive type必须这样才能共享
         
         def largest_path_ends_at(node):
             if node is None:
@@ -309,73 +357,63 @@ class Solution:
 
 > 给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
 
-- 思路：分治法，有左子树的公共祖先或者有右子树的公共祖先，就返回子树的祖先，否则返回根节点
+- 思路：分治法递归，一个函数同时搜索p和q，找到即返回p或q本身
+
+- 合并结果：
+  - pq分处两侧，root即为解
+  - 左右均为None，继续返回None
+  - 仅一边非None，返回这一边，说明这一边在当前或者之前找到了解
+
+- [次官方题解](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/solution/236-er-cha-shu-de-zui-jin-gong-gong-zu-xian-hou-xu/) 很好。
 
 ```Python
 class Solution:
     def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
-        
-        if root is None:
-            return None
-        
-        if root == p or root == q:
+        if root is None or root == p or root == q:
             return root
-        
         left = self.lowestCommonAncestor(root.left, p, q)
         right = self.lowestCommonAncestor(root.right, p, q)
         
-        if left is not None and right is not None:
-            return root
-        elif left is not None:
-            return left
-        elif right is not None:
+        if not left:
             return right
-        else:
-            return None
+        if not right:
+            return left
+        return root
 ```
 
-### BFS 层次应用
+### 层序遍历应用
 
 ### [binary-tree-zigzag-level-order-traversal](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/)
 
 > 给定一个二叉树，返回其节点值的锯齿形层次遍历。Z 字形遍历
 
-- 思路：在BFS迭代模板上改用双端队列控制输出顺序
+- 思路：在BFS迭代模板上，写结果时用deque颠倒顺序
 
 ```Python
 class Solution:
     def zigzagLevelOrder(self, root: TreeNode) -> List[List[int]]:
-        
         levels = []
-        if root is None:
+        if root is None:  # 实际做题还是单独处理dummy input靠谱
             return levels
         
-        s = collections.deque([root])
-
-        start_from_left = True
-        while len(s) > 0:
-            levels.append([])
-            level_size = len(s)
+        bfs = collections.deque([root])  # 正好作为deque的操练
+        level = collections.deque([])
+        append_this = level.append
+        
+        while len(bfs) > 0:
+            level_size = len(bfs)
+            for _ in range(level_size):
+                node = bfs.popleft()
+                append_this(node.val)
+                
+                if node.left is not None:
+                    bfs.append(node.left)
+                if node.right is not None:
+                    bfs.append(node.right)
             
-            if start_from_left:
-                for _ in range(level_size):
-                    node = s.popleft()
-                    levels[-1].append(node.val)
-                    if node.left is not None:
-                        s.append(node.left)
-                    if node.right is not None:
-                        s.append(node.right)
-            else:
-                for _ in range(level_size):
-                    node = s.pop()
-                    levels[-1].append(node.val)
-                    if node.right is not None:
-                        s.appendleft(node.right)
-                    if node.left is not None:
-                        s.appendleft(node.left)
-            
-            start_from_left = not start_from_left
-            
+            levels.append(list(level))
+            append_this = level.appendleft if append_this == level.append else level.append  # 也可以土一点，这里比较骚
+            level.clear()
         
         return levels
 ```
@@ -386,7 +424,29 @@ class Solution:
 
 > 给定一个二叉树，判断其是否是一个有效的二叉搜索树。
 
-- 思路 1：中序遍历后检查输出是否有序，缺点是如果不平衡无法提前返回结果， 代码略
+- 递归：直觉先想到，相对好想到一些，但也不trivial，要加lower bound和upper bound，不能只比较root.val和父亲
+
+```python
+class Solution:
+    def isValidBST(self, root: TreeNode) -> bool:
+        def isBST(root, lb=float('-inf'), ub=float('inf')):
+            if root is None:
+                return True
+            if not (lb < root.val < ub):
+                return False
+            left_isBST = isBST(root.left, lb, root.val)
+            right_isBST = isBST(root.right, root.val, ub)
+            return left_isBST and right_isBST
+        
+        return isBST(root)
+```
+
+不过，不能碰到False提前终止整个函数调用栈、输出。
+
+- 利用性质：BST中序遍历应得到升序序列。递归中序遍历仍不能提前输出，故用非递归遍历的模板。
+
+TODO：
+
 
 - 思路 2：分治法，一个二叉树为合法的二叉搜索树当且仅当左右子树为合法二叉搜索树且根结点值大于右子树最小值小于左子树最大值。缺点是若不用迭代形式实现则无法提前返回，而迭代实现右比较复杂。
 
@@ -444,36 +504,30 @@ class Solution:
 
 > 给定二叉搜索树（BST）的根节点和要插入树中的值，将值插入二叉搜索树。 返回插入后二叉搜索树的根节点。
 
-- 思路：如果只是为了完成任务则找到最后一个叶子节点满足插入条件即可。但此题深挖可以涉及到如何插入并维持平衡二叉搜索树的问题，并不适合初学者。
+- 思路：找到最后一个叶子节点，插入即可。但此题深挖可以涉及到如何插入并维持平衡二叉搜索树的问题，优先级很低。
 
 ```Python
 class Solution:
     def insertIntoBST(self, root: TreeNode, val: int) -> TreeNode:
-        
         if root is None:
             return TreeNode(val)
+        node, parent = root, None
+        while node is not None:
+            parent = node
+            node = node.left if val < node.val else node.right
         
-        node = root
-        while True:
-            if val > node.val:
-                if node.right is None:
-                    node.right = TreeNode(val)
-                    return root
-                else:
-                    node = node.right
-            else:
-                if node.left is None:
-                    node.left = TreeNode(val)
-                    return root
-                else:
-                    node = node.left
+        if val < parent.val:
+            parent.left = TreeNode(val)
+        else:
+            parent.right = TreeNode(val)
+        return root
 ```
 
 ## 总结
 
 - 掌握二叉树递归与非递归遍历
 - 理解 DFS 前序遍历与分治法
-- 理解 BFS 层次遍历
+- 理解 BFS 层序遍历
 
 ## 练习
 
