@@ -4,6 +4,8 @@
 
 将大问题转化为小问题，通过递归依次解决各个小问题
 
+模板：先终止条件，再分类讨论、递归调用、合并结果。
+
 ## 示例
 
 ### [reverse-string](https://leetcode-cn.com/problems/reverse-string/)

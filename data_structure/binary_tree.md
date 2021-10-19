@@ -235,7 +235,7 @@ class Solution:
         # 可以递归内部函数，也可以递归自己 
 ```
 
-或者反过来计算深度：
+或者反过来计算深度：（但是，在下一道判断平衡二叉树时，还是叶子节点从0起返回更好）
 ```python
 class Solution:
     def maxDepth(self, root: TreeNode) -> int:
@@ -246,7 +246,7 @@ class Solution:
         return depth(root, 0)
 ```
 
-- 思路 2：层序遍历
+- 思路 2：层序遍历（略过了）
 
 ```Python
 class Solution:
@@ -340,14 +340,14 @@ class Solution:
         
         def largest_path_ends_at(node):
             if node is None:
-                return float('-inf')
+                return float('-inf')  # 记住这里返回-inf而非0！例如输入[-3]，左右向答案的贡献变成了0
             
             e_l = largest_path_ends_at(node.left)
             e_r = largest_path_ends_at(node.right)
             
             self.maxPath = max(self.maxPath, node.val + max(0, e_l) + max(0, e_r), e_l, e_r)
             
-            return node.val + max(e_l, e_r, 0)
+            return node.val + max(e_l, e_r, 0)  # 这里有个0，处理叶子节点返回值
         
         largest_path_ends_at(root)
         return self.maxPath
@@ -400,7 +400,7 @@ class Solution:
         level = collections.deque([])
         append_this = level.append
         
-        while len(bfs) > 0:
+        while bfs:
             level_size = len(bfs)
             for _ in range(level_size):
                 node = bfs.popleft()
@@ -445,60 +445,28 @@ class Solution:
 
 - 利用性质：BST中序遍历应得到升序序列。递归中序遍历仍不能提前输出，故用非递归遍历的模板。
 
-TODO：
-
-
-- 思路 2：分治法，一个二叉树为合法的二叉搜索树当且仅当左右子树为合法二叉搜索树且根结点值大于右子树最小值小于左子树最大值。缺点是若不用迭代形式实现则无法提前返回，而迭代实现右比较复杂。
-
-```Python
+```python
 class Solution:
     def isValidBST(self, root: TreeNode) -> bool:
-        
-        if root is None: return True
-        
-        def valid_min_max(node):
-            
-            isValid = True
-            if node.left is not None:
-                l_isValid, l_min, l_max = valid_min_max(node.left)
-                isValid = isValid and node.val > l_max
+        pre_val = float('-inf')  # result
+        WHITE, GRAY = 0, 1
+        s = [(WHITE, root)]
+
+        while s:
+            color, node = s.pop()
+            if node is None: continue
+            if color == WHITE:
+                s.append((WHITE, node.right))
+                s.append((GRAY, node))
+                s.append((WHITE, node.left))
             else:
-                l_isValid, l_min = True, node.val
-
-            if node.right is not None:
-                r_isValid, r_min, r_max = valid_min_max(node.right)
-                isValid = isValid and node.val < r_min
-            else:
-                r_isValid, r_max = True, node.val
-
-                
-            return l_isValid and r_isValid and isValid, l_min, r_max
-        
-        return valid_min_max(root)[0]
-```
-
-- 思路 3：利用二叉搜索树的性质，根结点为左子树的右边界，右子树的左边界，使用先序遍历自顶向下更新左右子树的边界并检查是否合法，迭代版本实现简单且可以提前返回结果。
-
-```Python
-class Solution:
-    def isValidBST(self, root: TreeNode) -> bool:
-        
-        if root is None:
-            return True
-        
-        s = [(root, float('-inf'), float('inf'))]
-        while len(s) > 0:
-            node, low, up = s.pop()
-            if node.left is not None:
-                if node.left.val <= low or node.left.val >= node.val:
+                if node.val <= pre_val:
                     return False
-                s.append((node.left, low, node.val))
-            if node.right is not None:
-                if node.right.val <= node.val or node.right.val >= up:
-                    return False
-                s.append((node.right, node.val, up))
+                pre_val = node.val  # result
+        
         return True
 ```
+
 
 #### [insert-into-a-binary-search-tree](https://leetcode-cn.com/problems/insert-into-a-binary-search-tree/)
 
