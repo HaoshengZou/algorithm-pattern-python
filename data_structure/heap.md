@@ -1,10 +1,16 @@
 # 优先级队列 (堆)
 
+堆是一种二叉树，最小堆的父亲总是小于等于两个孩子。最大堆反之。因此，堆顶必为最值。
+
 用到优先级队列 (priority queue) 或堆 (heap) 的题一般需要维护一个动态更新的池，元素会被频繁加入到池中或从池中被取走，每次取走的元素为池中优先级最高的元素 (可以简单理解为最大或者最小)。用堆来实现优先级队列是效率非常高的方法，加入或取出都只需要 O(log N) 的复杂度。
 
 ## Kth largest/smallest
 
-找数据中第 K 个最大/最小数据是堆的一个典型应用。以找最大为例，遍历数据时，使用一个最小堆来维护当前最大的 K 个数据，堆顶数据为这 K 个数据中最小，即是你想要的第 k 个最大数据。每检查一个新数据，判断是否大于堆顶，若大于，说明堆顶数据小于了 K 个值，不是我们想找的第 K 个最大，则将新数据 push 进堆并 pop 掉堆顶，若小于则不操作，这样当遍历完全部数据后堆顶即为想要的结果。找最小时换成最大堆即可。
+找数据中第 K 个最大/最小数据是堆的一个典型应用。
+
+以找最大为例，遍历数据时，使用一个最小堆来维护当前最大的 K 个数据，堆顶数据为这 K 个数据中最小，即是你想要的第 k 个最大数据。每检查一个新数据，判断是否大于堆顶，若大于，说明堆顶数据小于了 K 个值，不是我们想找的第 K 个最大，则将新数据 push 进堆并 pop 掉堆顶，若小于则不操作，这样当遍历完全部数据后堆顶即为想要的结果。找最小时换成最大堆即可。
+
+注意，找第k个最大，居然是用最小堆。最小堆/最大堆只表示堆顶是堆内的最小/最大，用哪个看用途！【比如：需要多少个比它大的。】
 
 ### [kth-largest-element-in-a-stream](https://leetcode-cn.com/problems/kth-largest-element-in-a-stream/)
 
@@ -14,20 +20,19 @@
 class KthLargest:
 
     def __init__(self, k: int, nums: List[int]):
-        self.K = k
+        self.k = k
         self.min_heap = []
         for num in nums:
-            if len(self.min_heap) < self.K:
+            if len(self.min_heap) < self.k:
                 heapq.heappush(self.min_heap, num)
             elif num > self.min_heap[0]:
-                heapq.heappushpop(self.min_heap, num)
+                _ = heapq.heappushpop(self.min_heap, num)
 
     def add(self, val: int) -> int:
-        if len(self.min_heap) < self.K:
+        if len(self.min_heap) < self.k:  # 就算题目保证查找第k大时至少有k个，也有可能初始化空堆，那样就不能self.min_heap[0]了！
             heapq.heappush(self.min_heap, val)
         elif val > self.min_heap[0]:
-            heapq.heappushpop(self.min_heap, val)
-
+            _ = heapq.heappushpop(self.min_heap, val)
         return self.min_heap[0]
 ```
 
@@ -37,27 +42,24 @@ class KthLargest:
 
 - 此题使用 heap 来做并不是最优做法，相当于 N 个 sorted list 里找第 k 个最小，列有序的条件没有充分利用，但是却是比较容易想且比较通用的做法。
 
+具体见代码注释，大思路是维护一个"最小值候选堆"。弹出前k-1个最小值，堆顶就是第k小。【这里居然仍然是最小堆！interesting。记住。】
+
 ```Python
 class Solution:
     def kthSmallest(self, matrix: List[List[int]], k: int) -> int:
+        n = len(matrix) # 矩阵是n*n的
+
+        pq = [(matrix[i][0], i, 0) for i in range(min(k, n))] # 取出第一列候选人
+        # matrix[i][0]是具体的值，后面的(i,0)是在记录候选人在矩阵中的位置，方便每次右移添加下一个候选人
+
+        heapq.heapify(pq) # 用下heapify API
+
+        for i in range(k - 1): # 弹出前k-1个最小数，堆顶就剩第k小
+            _, x, y = heapq.heappop(pq) # 弹出候选人里最小一个
+            if y != n - 1: # 如果这一行还没被弹完，若弹完了就不候选这行了
+                heapq.heappush(pq, (matrix[x][y + 1], x, y + 1)) # 加入这一行的下一个候选人
         
-        N = len(matrix)
-        
-        min_heap = []
-        for i in range(min(k, N)): # 这里用了一点列有序的性质，第k个最小只可能在前k行中(k行以后的数至少大于了k个数)
-            min_heap.append((matrix[i][0], i, 0))
-        
-        heapq.heapify(min_heap)
-        
-        while k > 0:
-            num, r, c = heapq.heappop(min_heap)
-            
-            if c < N - 1:
-                heapq.heappush(min_heap, (matrix[r][c + 1], r, c + 1))
-            
-            k -= 1
-        
-        return num
+        return pq[0][0]
 ```
 
 ### [find-k-pairs-with-smallest-sums](https://leetcode-cn.com/problems/find-k-pairs-with-smallest-sums/)
