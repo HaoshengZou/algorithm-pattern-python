@@ -2,9 +2,12 @@
 
 给一个**有序数组**和目标值，找第一次/最后一次/任何一次出现的索引，时间复杂度 O(logN)。
 
+注意，不必递归，而是循环left right。
+
 ## 模板
 
-常用的二分搜索模板有如下三种形式：
+常用的二分搜索模板有如下三种形式：【只需记忆1和3，while里left不加1，则if else时加减1；否则if else不加减1。】
+注意输出也有些需要后处理的形式。
 
 ![binary_search_template](https://img.fuiboom.com/img/binary_search_template.png)
 
@@ -37,7 +40,7 @@ class Solution:
             return -1
 ```
 
-- 如果是最简单的二分搜索，不需要找第一个、最后一个位置，或者是没有重复元素，可以使用模板 1，代码更简洁。同时，如果搜索失败，left 是第一个大于 target 的索引，right 是最后一个小于 target 的索引。
+- 【纯查找，模板1的实现】如果是最简单的二分搜索，不需要找第一个、最后一个位置，或者是没有重复元素，可以使用模板 1，代码更简洁。同时，如果搜索失败，left 是第一个大于 target 的索引，right 是最后一个小于 target 的索引。
 
 ```Python
 class Solution:
@@ -88,43 +91,36 @@ class Solution:
 
 ```Python
 class Solution:
-    def searchRange(self, nums, target):
-        Range = [-1, -1]
-        if len(nums) == 0:
-            return Range
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        result = [-1, -1]
+        if not nums: return result
 
         l, r = 0, len(nums) - 1
         while l + 1 < r:
             mid = l + (r - l) // 2
-            if nums[mid] < target:
+            if nums[mid] < target:  # 第一个位置，小于号
                 l = mid
             else:
                 r = mid
-        
-        if nums[l] == target:
-            Range[0] = l
-        elif nums[r] == target:
-            Range[0] = r
-        else:
-            return Range
-        
+        if nums[l] == target: result[0] = l
+        elif nums[r] == target: result[0] = r
+        else: return result
+
         l, r = 0, len(nums) - 1
         while l + 1 < r:
             mid = l + (r - l) // 2
-            if nums[mid] <= target:
+            if nums[mid] <= target:  # 最后一个位置，小于等于号
                 l = mid
             else:
                 r = mid
-        
-        if nums[r] == target:
-            Range[1] = r
-        else:
-            Range[1] = l
-        
-        return Range
+        if nums[r] == target: result[1] = r
+        elif nums[l] == target: result[1] = l
+        else: raise ValueError()  # 其实如果找到了第一个，一定能找到最后一个
+
+        return result
 ```
 
-- 使用模板 2 的解法
+- 使用模板 2 的解法（暂略）
 
 ```Python
 class Solution:
@@ -352,10 +348,10 @@ class Solution:
 
 二分搜索核心四点要素（必背&理解）
 
-- 1、初始化：start=0、end=len-1
-- 2、循环退出条件：start + 1 < end
-- 3、比较中点和目标值：A[mid] ==、 <、> target
-- 4、判断最后两个元素是否符合：A[start]、A[end] ? target
+- 1、初始化：start=0、end=len-1 【固定】
+- 2、循环退出条件：start + 1 < end 【模板1/3不同
+- 3、比较中点和目标值：A[mid] ==、 <、> target 【模板1/3不同
+- 4、判断最后两个元素是否符合：A[start]、A[end] ? target 【模板3独有
 
 ## 练习题
 
