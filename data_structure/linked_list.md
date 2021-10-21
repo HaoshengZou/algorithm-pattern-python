@@ -4,7 +4,7 @@
 
 链表相关的核心点
 
-- null/nil 异常处理
+- None的处理（访问node.next前，必须先check node is not None）
 - dummy node 哑巴节点
 - 快慢指针
 - 插入一个节点到排序链表
@@ -318,8 +318,9 @@ class Solution:
         slow = fast = head
         
         while fast is not None and fast.next is not None:
+            # 只要需要访问.next，都必须先check是否为空。这就是while fast的用途。
             slow = slow.next
-	    fast = fast.next.next
+	        fast = fast.next.next
             if fast == slow:
                 return True
         
