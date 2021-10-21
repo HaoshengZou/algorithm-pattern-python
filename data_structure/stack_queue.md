@@ -331,43 +331,34 @@ class Solution:
 
 > 使用栈实现队列
 
+两个栈：输入栈和输出栈。
+
 ```Python
 class MyQueue:
 
     def __init__(self):
-        self.cache = []
-        self.out = []
+        self.instack = []
+        self.outstack = []
 
     def push(self, x: int) -> None:
-        """
-        Push element x to the back of queue.
-        """
-        self.cache.append(x)
+        self.instack.append(x)
 
     def pop(self) -> int:
-        """
-        Removes the element from in front of queue and returns that element.
-        """
-        if len(self.out) == 0:
-            while len(self.cache) > 0:
-                self.out.append(self.cache.pop())
-
-        return self.out.pop() 
+        if not self.outstack:
+            while self.instack:
+                self.outstack.append(self.instack.pop())
+        
+        return self.outstack.pop()
 
     def peek(self) -> int:
-        """
-        Get the front element.
-        """
-        if len(self.out) > 0:
-            return self.out[-1]
-        else:
-            return self.cache[0]
+        if not self.outstack:
+            while self.instack:
+                self.outstack.append(self.instack.pop())
+        
+        return self.outstack[-1]
 
     def empty(self) -> bool:
-        """
-        Returns whether the queue is empty.
-        """
-        return len(self.cache) == 0 and len(self.out) == 0
+        return not (self.instack or self.outstack)
 ```
 
 ### [binary-tree-level-order-traversal](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/)
@@ -518,6 +509,8 @@ class Solution:
 ### [sliding-window-maximum](https://leetcode-cn.com/problems/sliding-window-maximum/)
 
 > 求滑动窗口中的最大元素
+
+先掌握堆的做法即可。
 
 ```Python
 class Solution:
