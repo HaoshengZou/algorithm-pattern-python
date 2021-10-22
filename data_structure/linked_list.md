@@ -314,13 +314,12 @@ class Solution:
 ```Python
 class Solution:
     def hasCycle(self, head: ListNode) -> bool:
-        
         slow = fast = head
         
-        while fast is not None and fast.next is not None:
+        while fast and fast.next:
             # 只要需要访问.next，都必须先check是否为空。这就是while fast的用途。
             slow = slow.next
-	        fast = fast.next.next
+            fast = fast.next.next
             if fast == slow:
                 return True
         
