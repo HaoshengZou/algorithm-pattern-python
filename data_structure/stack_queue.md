@@ -466,6 +466,8 @@ class Solution:
 
 顾名思义，单调栈即是栈中元素有单调性的栈，典型应用为用线性的时间复杂度找左右两侧第一个大于/小于当前元素的位置。
 
+[Next Greater Element](https://leetcode-cn.com/problems/next-greater-element-i/) 似乎自己想到了一个很接近的方法，但是遍历顺序恰好相反，之后好好研究。
+
 ### [largest-rectangle-in-histogram](https://leetcode-cn.com/problems/largest-rectangle-in-histogram/)
 
 ```Python
