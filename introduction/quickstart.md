@@ -46,8 +46,8 @@ def backtrack(选择列表, 路径):
     for 选择 in 选择列表:  # 遍历选择，就不会重复了
         做选择
         backtrack(新选择列表, 新路径)
-        撤销选择
-    return  # 部分循环中，循环结束依然无解
+        撤销选择  # 选择放在函数参数临时变量的话，不必显式撤销选择，参见lc301（删括号，hard也能写得漂亮）等题。
+    return  # 代码函数严谨性def - return对应，其实最后自动return
 ```
 
 - 通过不停的选择，撤销选择，来穷尽所有可能性，最后将满足条件的结果返回。答案代码：
@@ -62,7 +62,6 @@ class Solution:
             if len(route) == k:
                 result.append(route.copy())
                 return
-            
             for i in range(start, n):
                 route.append(nums[i])
                 backtrack(i + 1, route, k)
