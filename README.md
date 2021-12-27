@@ -6,7 +6,7 @@ zhs branch:
 不加注释，全都显式可见。
 
 
-本项目为原项目 [algorithm-pattern](https://github.com/greyireland/algorithm-pattern) 的 Python3 语言实现版本，原项目使用 go 语言实现，目前已获 ![GitHub stars](https://img.shields.io/github/stars/greyireland/algorithm-pattern?style=social)。在原项目基础上，本项目添加了优先级队列，并查集，图相关算法等内容，基本覆盖了所有基础数据结构和算法，非常适合找工刷题的同学快速上手。以下为原项目 README，目录部分增加了本项目的新内容。
+本项目为原项目 [algorithm-pattern](https://github.com/greyireland/algorithm-pattern) 的 Python3 语言实现版本，原项目使用 go 语言实现，目前已获 ![GitHub stars](https://img.shields.io/github/stars/greyireland/algorithm-pattern?style=social)。在原项目基础上，本项目添加了优先级队列，并查集，图相关算法等内容，基本覆盖了所有基础数据结构和算法，非常适合找工作刷题的同学快速上手。以下为原项目 README，目录部分增加了本项目的新内容。
 
 # 算法模板
 
