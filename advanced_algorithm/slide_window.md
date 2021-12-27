@@ -209,6 +209,16 @@ class Solution:
   - left 右移
   - 求结果
 
+双指针不止一种，可以在for x 循环中按需更新left 和/或 right：
+```python
+left = right = 0  # 当x和其中某侧重合时，可以只有另一侧
+for x in range(n):
+    while left_condition:  # if necessary
+        left += 1
+    while right_condition:  # if necessary
+        right += 1
+```
+
 ## 练习
 
 - [ ] [minimum-window-substring](https://leetcode-cn.com/problems/minimum-window-substring/)
