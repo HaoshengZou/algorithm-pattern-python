@@ -6,7 +6,47 @@
 
 > 给定课程的先修关系，求一个可行的修课顺序
 
-非常经典的拓扑排序应用。下面给出 3 种实现方法，可以当做模板使用。
+非常经典的拓扑排序应用。下面给出 4 种实现方法，可以当做模板使用。
+
+个人目前最喜欢：BFS拓扑排序，基本就是方法 3 Kahn's algorithm：
+
+> 建图 --> deque当前0度点 --> 出0度点，减度，入新0度点 --> 依长度判断有无环。
+
+```python
+class Solution:
+    def alienOrder(self, words: List[str]) -> str:
+        if len(words) == 1:
+            return words[0]
+        
+        # 根据两两相邻单词，建图
+        g = defaultdict(set)
+        indeg = Counter()
+        for w1, w2 in pairwise(words):
+            for c1, c2 in zip(w1, w2):
+                if c1 != c2:  # c1 < c2
+                    indeg[c2] += c2 not in g[c1]  # BUG: 重复边不贡献度
+                    g[c1].add(c2)
+                    break  # 第一个不同字母处
+            # 循环结束都没有不同字母，则无事发生？还要看是否真满足字典序！
+            else:
+                if len(w1) > len(w2):
+                    return ""
+
+        # 拓扑排序
+        ans = ""
+        nodes = set(''.join(words))  # 所有出现的字母
+        q = deque([c for c in nodes if indeg[c] == 0])  # "deque当前0度点"
+        while q:
+            node = q.popleft()  # "出0度点"
+            ans += node
+            for v in g[node]:  # "减度，入新0度点"
+                indeg[v] -= 1
+                if indeg[v] == 0:
+                    q.append(v)
+
+        return ans if len(ans) == len(nodes) else ""  # "依长度判断有无环"
+
+```
 
 - 方法 1：DFS 的递归实现
 
