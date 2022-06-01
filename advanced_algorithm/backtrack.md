@@ -21,6 +21,27 @@ func backtrack(选择列表,路径):
 
 核心就是从选择列表里做一个选择，然后一直递归往下搜索答案，如果遇到路径不通，就返回来撤销这次选择。
 
+### 搜到一个解就提前终止搜索、返回结果的模板 [lc473.火柴拼正方形](https://leetcode.cn/problems/matchsticks-to-square/)
+```python
+# 似乎只能搜索
+matchsticks.sort(reverse=True)  # 从大到小，这样提前爆大、被剪枝
+sums = [0] * 4
+def backtrack(i):
+    if max(sums) > edge:
+        return  # 终止搜索子树，但其实 if sums[pile_id] <= edge就有保证
+    if i == n:  # 搜到叶子节点
+        if all(s == edge for s in sums):
+            return True
+    for pile_id in range(4):
+        sums[pile_id] += matchsticks[i]
+        if sums[pile_id] <= edge and backtrack(i + 1):  # 这里递归调用，利用返回值
+            return True
+        sums[pile_id] -= matchsticks[i]
+    return False
+
+return backtrack(0)
+```
+
 ## 示例
 
 ### [subsets](https://leetcode-cn.com/problems/subsets/)
