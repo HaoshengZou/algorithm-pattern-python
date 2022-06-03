@@ -42,6 +42,33 @@ def backtrack(i):
 return backtrack(0)
 ```
 
+### 类似同时递归和return [lc450.删除二叉搜索树中的节点](https://leetcode.cn/problems/delete-node-in-a-bst/)
+
+```python
+class Solution:
+    def deleteNode(self, root: Optional[TreeNode], key: int) -> Optional[TreeNode]:
+        if root is None:
+            return root
+        if root.val > key:  # 去左子树删除
+            root.left = self.deleteNode(root.left, key)
+        elif root.val < key:  # 去右子树删除
+            root.right = self.deleteNode(root.right, key)
+        else:  # 把该节点的左子树，放到右子树的最小值节点的左孩子
+            if root.right is None:
+                root = root.left
+            elif root.left is None:
+                root = root.right
+            else:
+                node = root.right
+                while node.left is not None:
+                    node = node.left
+                node.left = root.left
+                # 用右子树节点代替自己
+                root = root.right
+        return root
+```
+
+
 ## 示例
 
 ### [subsets](https://leetcode-cn.com/problems/subsets/)
