@@ -8,7 +8,35 @@
 
 非常经典的拓扑排序应用。下面给出 4 种实现方法，可以当做模板使用。
 
-个人目前最喜欢：BFS拓扑排序，基本就是方法 3 Kahn's algorithm：
+个人目前最喜欢：BFS拓扑排序，基本就是方法 3 Kahn's algorithm，自己最习惯的记忆模板
+
+```python
+def topo_sort(edges):
+    # 建图
+    g = defaultdict(list)
+    indegs = [0] * n
+    for u, v in edge:
+        g[u] = v
+        indegs[v] += 1
+
+    # 行数很少的排序
+    result = list()  # 存拓扑排序的结果
+    indeg_0 = deque([u for u in range(n) if indegs[u] == 0])
+    # 就用list，只在末尾pop append也行
+    # indeg_0 = [u for u in range(n) if indegs[u] == 0]
+    
+    while indeg_0:
+        u = indeg_0.popleft()  # list就.pop()即可
+        result.append(u)
+        for v in g[u]:
+            indegs[v] -= 1
+            if indegs[v] == 0:  # 在这里立即判断是否可以入队，这样就不需要记录visited数组了，细品：已经为0的之前就入队，总是立即入队
+                indeg_0.append(v)
+                
+    assert len(result) == n  # 最后看是否都排进去了，判断是否存在拓扑排序
+    # 这种写法，不用visited数组，主循环不用判断是否存在，只需前后处理，最简单
+```
+
 
 > 建图 --> deque当前0度点 --> 出0度点，减度，入新0度点 --> 依长度判断有无环。
 
