@@ -1,5 +1,11 @@
 # 动态规划
 
+## 状态机DP
+
+各种买卖股票：冷冻期，至少/至多k次等等
+[灵神B站讲解](https://www.bilibili.com/video/BV1ho4y1W7QK)
+
+
 ## 背景
 
 先从一道题目开始~
